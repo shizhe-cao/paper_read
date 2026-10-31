@@ -1,0 +1,10 @@
+{
+  "name": "paper-read",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "cd server && npm install && npm run build:dict && cd ../client && npm install",
+    "server": "npm --prefix server start",
+    "client": "npm --prefix client run dev"
+  }
+}

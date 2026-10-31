@@ -1,0 +1,17 @@
+{
+  "name": "paper-read-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:dict": "node build-dict.mjs",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "cors": "^2.8.5",
+    "ecdict": "0.0.4",
+    "express": "^4.21.1",
+    "pdfjs-dist": "^3.11.174"
+  }
+}
