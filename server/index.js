@@ -99,6 +99,14 @@ db.exec(`
   }
 }
 
+// 旧库迁移：为 words 补充单词级显示/隐藏字段
+{
+  const wordCols = db.prepare('PRAGMA table_info(words)').all().map((c) => c.name);
+  if (!wordCols.includes('hidden')) {
+    db.exec('ALTER TABLE words ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0');
+  }
+}
+
 /* ---------------- 词典 ---------------- */
 const dictDbPath = path.join(__dirname, 'dict', 'dict.db');
 let dictStmt = null;
@@ -530,6 +538,14 @@ app.post('/api/papers/:id/words', (req, res) => {
 app.delete('/api/words/:id', (req, res) => {
   db.prepare('DELETE FROM words WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
+});
+
+// 单词级显示/隐藏切换（控制 PDF 上高亮与释义是否展示）
+app.patch('/api/words/:id', (req, res) => {
+  const hidden = req.body?.hidden ? 1 : 0;
+  const info = db.prepare('UPDATE words SET hidden = ? WHERE id = ?').run(hidden, req.params.id);
+  if (info.changes === 0) return res.status(404).json({ error: '生词不存在' });
+  res.json(db.prepare('SELECT * FROM words WHERE id = ?').get(req.params.id));
 });
 
 app.listen(PORT, () => {

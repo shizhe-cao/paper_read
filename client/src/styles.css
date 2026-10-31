@@ -449,6 +449,27 @@ body {
   border-top: 1px solid var(--border);
 }
 
+/* 隐藏生词模式：高亮与悬停释义全部不可见 */
+.pdf-page.hide-words mark.saved-word,
+.pdf-scroll.hide-words mark.saved-word {
+  background: transparent;
+  cursor: inherit;
+}
+.pdf-page.hide-words mark.saved-word:hover,
+.pdf-scroll.hide-words mark.saved-word:hover {
+  background: transparent;
+}
+.pdf-page.hide-words mark.saved-word::after,
+.pdf-scroll.hide-words mark.saved-word::after {
+  content: none;
+}
+.btn-ghost { opacity: 0.65; }
+.btn-ghost:hover { opacity: 1; }
+/* 单词级隐藏：生词本列表中的置灰样式 */
+.word-card.word-hidden { opacity: 0.55; background: #fafafa; }
+.word-card.word-hidden .word-text { text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.25); }
+.word-card .word-toggle { margin-left: auto; }
+
 /* 生词高亮与悬停释义 */
 .pdf-page mark.saved-word {
   background: rgba(255, 213, 79, 0.55);
@@ -478,6 +499,14 @@ body {
   width: max-content;
   max-width: 300px;
   pointer-events: none;
+  /* 平时隐藏，悬停才浮出释义 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+.pdf-page mark.saved-word:hover::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ---------- 翻译弹窗 ---------- */

@@ -53,6 +53,15 @@ export default function PdfViewer({ paperId, savedWords, onWordAdded, currentPag
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [popup, setPopup] = useState(null);
+  // 生词高亮/释义是否显示（持久化）
+  const [showWords, setShowWords] = useState(() => {
+    try { return localStorage.getItem('paperRead.showWords') !== '0'; } catch { return true; }
+  });
+  const toggleWords = () => setShowWords((v) => {
+    const next = !v;
+    try { localStorage.setItem('paperRead.showWords', next ? '1' : '0'); } catch {}
+    return next;
+  });
 
   const renderAllPages = useCallback(async (pdf, zoomFactor) => {
     const container = scrollRef.current;
@@ -166,11 +175,15 @@ export default function PdfViewer({ paperId, savedWords, onWordAdded, currentPag
     });
   };
 
-  // 生词高亮
+  // 生词高亮：只渲染未隐藏的词（单词级 hidden 过滤）
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
-    const map = new Map(savedWords.map((w) => [w.word.toLowerCase(), w.translation || w.phonetic || '']));
+    const map = new Map(
+      savedWords
+        .filter((w) => !w.hidden)
+        .map((w) => [w.word.toLowerCase(), w.translation || w.phonetic || ''])
+    );
     highlightWords(root, map);
   }, [savedWords, numPages, zoom, loading]);
 
@@ -242,8 +255,15 @@ export default function PdfViewer({ paperId, savedWords, onWordAdded, currentPag
           <button className="btn btn-sm" onClick={() => changeZoom(0.15)}>+</button>
         </div>
         <span className="toolbar-hint">双击或划选单词即可翻译</span>
+        <button
+          className={showWords ? 'btn btn-sm' : 'btn btn-sm btn-ghost'}
+          onClick={toggleWords}
+          title="隐藏后，已保存生词的黄色高亮与悬停释义都不再显示"
+        >
+          {showWords ? '隐藏生词翻译' : '显示生词翻译'}
+        </button>
       </div>
-      <div className="pdf-scroll" ref={scrollRef} onMouseUp={handleMouseUp}>
+      <div className={showWords ? 'pdf-scroll' : 'pdf-scroll hide-words'} ref={scrollRef} onMouseUp={handleMouseUp}>
         {!paperId && <div className="viewer-empty">上传一篇 PDF 论文开始阅读</div>}
         {loading && <div className="viewer-loading">正在加载…</div>}
         {error && <div className="viewer-error">{error}</div>}
